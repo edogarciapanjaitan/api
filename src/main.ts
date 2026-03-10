@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import { config } from "./config/config";
 import { errorHandler } from "./middleware/error.middleware";
 import authRoutes from "./modules/auth/auth.routes";
+import shiftRoutes from "./modules/shift/shift.routes";
 
 // --- Create Express app ---
 
@@ -52,6 +53,7 @@ app.get("/api/health", (_req, res) => {
 // --- Routes ---
 
 app.use("/api/auth", authRoutes);
+app.use("/api/shifts", shiftRoutes);
 
 // --- Global Error Handler ---
 

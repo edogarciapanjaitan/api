@@ -39,32 +39,32 @@ async function main() {
     console.log('Menambahkan 20 produk minimarket...');
     const products = [
         // MINUMAN
-        { name: 'Aqua Botol 600ml', sku: 'AQUA600', price: 3500, stock: 100, category: 'Minuman' },
-        { name: 'Teh Pucuk Harum 350ml', sku: 'TEHPCK', price: 4000, stock: 50, category: 'Minuman' },
-        { name: 'Indomilk Steril Cokelat', sku: 'IDMLKCKL', price: 10500, stock: 24, category: 'Minuman' },
-        { name: 'Coca Cola 390ml', sku: 'COKE390', price: 6000, stock: 30, category: 'Minuman' },
-        { name: 'Pocari Sweat 500ml', sku: 'POCARI', price: 8500, stock: 40, category: 'Minuman' },
+        { name: 'Aqua Botol 600ml', sku: '1001', price: 3500, stock: 100, category: 'Minuman' },
+        { name: 'Teh Pucuk Harum 350ml', sku: '1002', price: 4000, stock: 50, category: 'Minuman' },
+        { name: 'Indomilk Steril Cokelat', sku: '1003', price: 10500, stock: 24, category: 'Minuman' },
+        { name: 'Coca Cola 390ml', sku: '1004', price: 6000, stock: 30, category: 'Minuman' },
+        { name: 'Pocari Sweat 500ml', sku: '1005', price: 8500, stock: 40, category: 'Minuman' },
 
         // MAKANAN & SNACK
-        { name: 'Indomie Goreng Spesial', sku: 'INDGORENG', price: 3100, stock: 200, category: 'Makanan' },
-        { name: 'Sedaap Mie Kuah Soto', sku: 'SEDAPSOTO', price: 3000, stock: 150, category: 'Makanan' },
-        { name: 'Chitato Sapi Panggang', sku: 'CHITATO', price: 11500, stock: 20, category: 'Snack' },
-        { name: 'Silverqueen Cashew 58g', sku: 'SQ58G', price: 16500, stock: 15, category: 'Snack' },
-        { name: 'Oreo Vanilla 133g', sku: 'OREO133', price: 9500, stock: 25, category: 'Snack' },
+        { name: 'Indomie Goreng Spesial', sku: '2001', price: 3100, stock: 200, category: 'Makanan' },
+        { name: 'Sedaap Mie Kuah Soto', sku: '2002', price: 3000, stock: 150, category: 'Makanan' },
+        { name: 'Chitato Sapi Panggang', sku: '2003', price: 11500, stock: 20, category: 'Snack' },
+        { name: 'Silverqueen Cashew 58g', sku: '2004', price: 16500, stock: 15, category: 'Snack' },
+        { name: 'Oreo Vanilla 133g', sku: '2005', price: 9500, stock: 25, category: 'Snack' },
 
         // KEBUTUHAN DAPUR
-        { name: 'Minyak Goreng Bimoli 1L', sku: 'BIMOLI1L', price: 18500, stock: 12, category: 'Dapur' },
-        { name: 'Gula Pasir Gulaku 1kg', sku: 'GULAKU1K', price: 17000, stock: 20, category: 'Dapur' },
-        { name: 'Kecap Manis Bango 550ml', sku: 'BANGO550', price: 24500, stock: 10, category: 'Dapur' },
-        { name: 'Beras Pandan Wangi 5kg', sku: 'BERAS5K', price: 75000, stock: 5, category: 'Dapur' },
+        { name: 'Minyak Goreng Bimoli 1L', sku: '3001', price: 18500, stock: 12, category: 'Dapur' },
+        { name: 'Gula Pasir Gulaku 1kg', sku: '3002', price: 17000, stock: 20, category: 'Dapur' },
+        { name: 'Kecap Manis Bango 550ml', sku: '3003', price: 24500, stock: 10, category: 'Dapur' },
+        { name: 'Beras Pandan Wangi 5kg', sku: '3004', price: 75000, stock: 5, category: 'Dapur' },
 
         // PERSONAL CARE & HOUSEHOLD
-        { name: 'Pepsodent White 190g', sku: 'PEPSO190', price: 14500, stock: 30, category: 'Personal Care' },
-        { name: 'Lifebuoy Sabun Cair 400ml', sku: 'LIFEB400', price: 22000, stock: 20, category: 'Personal Care' },
-        { name: 'Sunsilk Black 170ml', sku: 'SUNSLK170', price: 26000, stock: 15, category: 'Personal Care' },
-        { name: 'Mama Lemon Jeruk Nipis', sku: 'MAMALMN', price: 13500, stock: 25, category: 'Rumah Tangga' },
-        { name: 'Rinso Molto 770g', sku: 'RINSO770', price: 28500, stock: 18, category: 'Rumah Tangga' },
-        { name: 'Tisu Paseo 250 Sheets', sku: 'PASEO250', price: 15000, stock: 40, category: 'Rumah Tangga' },
+        { name: 'Pepsodent White 190g', sku: '4001', price: 14500, stock: 30, category: 'Personal Care' },
+        { name: 'Lifebuoy Sabun Cair 400ml', sku: '4002', price: 22000, stock: 20, category: 'Personal Care' },
+        { name: 'Sunsilk Black 170ml', sku: '4003', price: 26000, stock: 15, category: 'Personal Care' },
+        { name: 'Mama Lemon Jeruk Nipis', sku: '4004', price: 13500, stock: 25, category: 'Rumah Tangga' },
+        { name: 'Rinso Molto 770g', sku: '4005', price: 28500, stock: 18, category: 'Rumah Tangga' },
+        { name: 'Tisu Paseo 250 Sheets', sku: '4006', price: 15000, stock: 40, category: 'Rumah Tangga' },
     ];
 
     await prisma.product.createMany({ data: products });
