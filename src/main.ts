@@ -6,6 +6,8 @@ import { config } from "./config/config";
 import { errorHandler } from "./middleware/error.middleware";
 import authRoutes from "./modules/auth/auth.routes";
 import shiftRoutes from "./modules/shift/shift.routes";
+import productRoutes from "./modules/product/product.routes";
+import transactionRoutes from "./modules/transaction/transaction.routes";
 
 // --- Create Express app ---
 
@@ -54,6 +56,8 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/shifts", shiftRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 // --- Global Error Handler ---
 
