@@ -1,0 +1,92 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// 1. Model User (Admin & Kasir)
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  username  String   @unique
+  password  String
+  role      Role     @default(CASHIER)
+  shifts    Shift[]  // Relasi: Satu kasir bisa punya banyak shift
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 2. Model Produk & Stok
+model Product {
+  id               String            @id @default(cuid())
+  name             String
+  sku              String            @unique // Kode unik produk/barcode
+  price            Float
+  stock            Int               @default(0)
+  category         String?
+  transactionItems TransactionItem[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+// 3. Model Shift (Krusial untuk laporan uang awal/akhir)
+model Shift {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  startTime      DateTime      @default(now())
+  endTime        DateTime?
+  startingCash   Float         // Uang awal di mesin kasir
+  endingCash     Float?        // Uang akhir saat closing
+  totalCashSales Float         @default(0) // Total penjualan tunai (otomatis dari sistem)
+  totalDebitSales Float        @default(0) // Total penjualan debit (otomatis dari sistem)
+  transactions   Transaction[]
+}
+
+// 4. Model Transaksi
+enum PaymentMethod {
+  CASH
+  DEBIT
+}
+
+model Transaction {
+  id            String          @id @default(cuid())
+  invoiceNumber String          @unique // Contoh: INV-20240310-001
+  shiftId       String
+  shift         Shift           @relation(fields: [shiftId], references: [id])
+  totalPrice    Float
+  paymentMethod PaymentMethod
+  
+  // Data Pembayaran Cash
+  amountPaid    Float?          // Uang tunai yang diterima
+  change        Float?          // Kembalian
+  
+  // Data Pembayaran Debit
+  debitCardNo   String?         // Nomor kartu debit (jika DEBIT)
+  
+  items         TransactionItem[]
+  createdAt     DateTime        @default(now())
+}
+
+// 5. Detail Item per Transaksi
+model TransactionItem {
+  id            String      @id @default(cuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id])
+  quantity      Int
+  priceAtSale   Float       // Harga saat transaksi (penting jika harga produk berubah nanti)
+  subtotal      Float
+}
+        
