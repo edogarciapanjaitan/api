@@ -8,6 +8,7 @@ import authRoutes from "./modules/auth/auth.routes";
 import shiftRoutes from "./modules/shift/shift.routes";
 import productRoutes from "./modules/product/product.routes";
 import transactionRoutes from "./modules/transaction/transaction.routes";
+import userRoutes from "./modules/user/user.routes";
 
 // --- Create Express app ---
 
@@ -58,6 +59,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/shifts", shiftRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/users", userRoutes);
 
 // --- Global Error Handler ---
 

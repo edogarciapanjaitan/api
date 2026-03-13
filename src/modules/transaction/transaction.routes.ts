@@ -22,6 +22,13 @@ router.get(
   transactionController.getTransactionsByShift.bind(transactionController)
 );
 
+// GET /api/transactions/dashboard-stats — Admin dashboard stats
+router.get(
+  "/dashboard-stats",
+  authorize("ADMIN"),
+  transactionController.getDashboardStats.bind(transactionController)
+);
+
 // GET /api/transactions/history?date=YYYY-MM-DD — List daily transaction history
 router.get(
   "/history",

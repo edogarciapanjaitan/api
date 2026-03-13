@@ -112,4 +112,35 @@ export class TransactionController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/transactions/dashboard-stats
+   * Get aggregated dashboard statistics (total transactions and total items sold) per day.
+   */
+  async getDashboardStats(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const daysStr = req.query.days as string;
+      const days = typeof daysStr === "string" ? parseInt(daysStr, 10) : 7;
+      
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - (days - 1));
+
+      const stats = await transactionService.getDashboardStats(
+        startDate,
+        endDate
+      );
+
+      res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

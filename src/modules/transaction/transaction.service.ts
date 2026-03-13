@@ -278,6 +278,65 @@ export class TransactionService {
   }
 
   /**
+   * Get aggregated dashboard statistics (total transactions and total items sold) per day
+   * within a given date range.
+   */
+  async getDashboardStats(startDate: Date, endDate: Date) {
+    // Determine start and end of the requested range (local time)
+    const normalizedStart = new Date(startDate);
+    normalizedStart.setHours(0, 0, 0, 0);
+
+    const normalizedEnd = new Date(endDate);
+    normalizedEnd.setHours(23, 59, 59, 999);
+
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        createdAt: {
+          gte: normalizedStart,
+          lte: normalizedEnd,
+        },
+      },
+      select: {
+        createdAt: true,
+        items: {
+          select: {
+            quantity: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    // Grouping by date (YYYY-MM-DD)
+    const dailyStats = new Map<string, { date: string; totalTransactions: number; totalItemsSold: number }>();
+
+    // Initialize all dates in range with 0 to ensure continuous line chart
+    let currentDate = new Date(normalizedStart);
+    while (currentDate <= normalizedEnd) {
+      const dateString = currentDate.toISOString().split("T")[0];
+      dailyStats.set(dateString, {
+        date: dateString,
+        totalTransactions: 0,
+        totalItemsSold: 0,
+      });
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Populate data
+    for (const tx of transactions) {
+      const dateString = tx.createdAt.toISOString().split("T")[0];
+      const stat = dailyStats.get(dateString);
+      if (stat) {
+        stat.totalTransactions += 1;
+        const txItemsCount = tx.items.reduce((sum, item) => sum + item.quantity, 0);
+        stat.totalItemsSold += txItemsCount;
+      }
+    }
+
+    return Array.from(dailyStats.values());
+  }
+
+  /**
    * Generate invoice number: INV-YYYYMMDD-XXX
    * Counter resets per day.
    */
