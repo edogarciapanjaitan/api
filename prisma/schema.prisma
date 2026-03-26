@@ -24,6 +24,8 @@ model User {
   shifts    Shift[]  // Relasi: Satu kasir bisa punya banyak shift
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  
 }
 
 // 2. Model Produk & Stok
@@ -37,6 +39,8 @@ model Product {
   transactionItems TransactionItem[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+
+  @@index([sku])
 }
 
 // 3. Model Shift (Krusial untuk laporan uang awal/akhir)
@@ -51,6 +55,8 @@ model Shift {
   totalCashSales Float         @default(0) // Total penjualan tunai (otomatis dari sistem)
   totalDebitSales Float        @default(0) // Total penjualan debit (otomatis dari sistem)
   transactions   Transaction[]
+
+  @@index([userId, startTime])
 }
 
 // 4. Model Transaksi
@@ -76,6 +82,8 @@ model Transaction {
   
   items         TransactionItem[]
   createdAt     DateTime        @default(now())
+
+  @@index([createdAt])
 }
 
 // 5. Detail Item per Transaksi
