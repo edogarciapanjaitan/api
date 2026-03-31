@@ -9,6 +9,13 @@ const shiftController = new ShiftController();
 // All shift routes require authentication + CASHIER or ADMIN role
 router.use(authenticate, authorize("CASHIER", "ADMIN"));
 
+// GET /api/shifts/daily-report — Get daily shift report (Admin only)
+router.get(
+  "/daily-report",
+  authorize("ADMIN"),
+  shiftController.getDailyShiftReport.bind(shiftController)
+);
+
 // GET /api/shifts — Get active shift
 router.get("/", shiftController.getActiveShift.bind(shiftController));
 

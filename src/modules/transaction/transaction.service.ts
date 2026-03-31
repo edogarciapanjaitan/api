@@ -310,10 +310,16 @@ export class TransactionService {
     // Grouping by date (YYYY-MM-DD)
     const dailyStats = new Map<string, { date: string; totalTransactions: number; totalItemsSold: number }>();
 
+    // Helper to get local date string YYYY-MM-DD
+    const getLocalYYYYMMDD = (d: Date) => {
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    };
+
     // Initialize all dates in range with 0 to ensure continuous line chart
     let currentDate = new Date(normalizedStart);
     while (currentDate <= normalizedEnd) {
-      const dateString = currentDate.toISOString().split("T")[0];
+      const dateString = getLocalYYYYMMDD(currentDate);
       dailyStats.set(dateString, {
         date: dateString,
         totalTransactions: 0,
@@ -324,7 +330,7 @@ export class TransactionService {
 
     // Populate data
     for (const tx of transactions) {
-      const dateString = tx.createdAt.toISOString().split("T")[0];
+      const dateString = getLocalYYYYMMDD(tx.createdAt);
       const stat = dailyStats.get(dateString);
       if (stat) {
         stat.totalTransactions += 1;

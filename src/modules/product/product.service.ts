@@ -27,6 +27,7 @@ export class ProductService {
       where: {
         AND: [
           { stock: { gt: 0 } },
+          { isDeleted: false },
           {
             OR: [
               { name: { contains: trimmed, mode: "insensitive" } },
@@ -84,7 +85,7 @@ export class ProductService {
     const skip = (page - 1) * limit;
     
     // Build where clause
-    const whereClause: any = {};
+    const whereClause: any = { isDeleted: false };
     if (search && search.trim().length > 0) {
       const trimmed = search.trim();
       whereClause.OR = [
@@ -205,11 +206,20 @@ export class ProductService {
    */
   async deleteProduct(id: string): Promise<void> {
     try {
-      await prisma.product.delete({
+      const product = await prisma.product.findUnique({ where: { id } });
+      if (!product) {
+        throw new Error("Produk tidak ditemukan.");
+      }
+
+      await prisma.product.update({
         where: { id },
+        data: {
+          isDeleted: true,
+          sku: `${product.sku}-DELETED-${Date.now()}`
+        }
       });
     } catch (error: any) {
-      // Handle Prisma foreign key constraint error
+      // Handle Prisma foreign key constraint error (if still using true delete somehow)
       if (error.code === 'P2003') {
         throw new Error("Tidak dapat menghapus produk ini karena sudah ada di riwayat transaksi.");
       }

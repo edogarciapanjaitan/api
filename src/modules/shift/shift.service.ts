@@ -139,6 +139,42 @@ export class ShiftService {
 
     return shift;
   }
+
+  /**
+   * Get daily shift report for the past X days.
+   */
+  async getDailyShiftReport(days: number) {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - (days - 1));
+    startDate.setHours(0, 0, 0, 0);
+
+    const shifts = await prisma.shift.findMany({
+      where: {
+        startTime: { gte: startDate }
+      },
+      include: {
+        user: {
+          select: { name: true, username: true }
+        },
+        _count: {
+          select: { transactions: true }
+        }
+      },
+      orderBy: { startTime: 'desc' }
+    });
+
+    return shifts.map((shift: any) => ({
+      id: shift.id,
+      cashierName: shift.user.name,
+      startTime: shift.startTime,
+      endTime: shift.endTime,
+      startingCash: shift.startingCash,
+      endingCash: shift.endingCash,
+      totalCashSales: shift.totalCashSales,
+      totalDebitSales: shift.totalDebitSales,
+      totalTransactions: shift._count.transactions
+    }));
+  }
 }
 
 // --- Custom error class ---

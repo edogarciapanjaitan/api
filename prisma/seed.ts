@@ -69,7 +69,98 @@ async function main() {
 
     await prisma.product.createMany({ data: products });
 
-    console.log('Seeding berhasil! 20 produk telah ditambahkan.');
+    // 5. Tambahkan Riwayat Transaksi 7 Hari Terakhir
+    console.log('Membuat data transaksi rekayasa selama 7 hari terakhir...');
+    const allProducts = await prisma.product.findMany();
+    const cashier = await prisma.user.findUnique({ where: { username: 'kasir1' } });
+
+    if (cashier && allProducts.length > 0) {
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            
+            // Buat Shift
+            const startTime = new Date(date);
+            startTime.setHours(8, 0, 0, 0); // Buka 08:00
+            
+            const endTime = new Date(date);
+            endTime.setHours(17, 0, 0, 0); // Tutup 17:00
+
+            const shift = await prisma.shift.create({
+                data: {
+                    userId: cashier.id,
+                    startTime,
+                    endTime,
+                    startingCash: 500000,
+                    endingCash: 500000, // Akan diupdate nanti
+                    totalCashSales: 0,
+                    totalDebitSales: 0
+                }
+            });
+
+            const txCount = Math.floor(Math.random() * 10) + 5; // 5-14 transaksi per hari
+            let totalCash = 0;
+            let totalDebit = 0;
+
+            for (let j = 0; j < txCount; j++) {
+                const txTime = new Date(startTime);
+                txTime.setMinutes(txTime.getMinutes() + Math.floor(Math.random() * 500)); // Acak jam transaksi
+
+                const itemCount = Math.floor(Math.random() * 3) + 1; // 1-3 produk berbeda
+                const itemsMap = new Map(); // Untuk mencegah duplicate produk dalam 1 trx
+                let totalPrice = 0;
+
+                for (let k = 0; k < itemCount; k++) {
+                    const product = allProducts[Math.floor(Math.random() * allProducts.length)];
+                    const quantity = Math.floor(Math.random() * 2) + 1;
+                    if (!itemsMap.has(product.id)) {
+                        const subtotal = product.price * quantity;
+                        totalPrice += subtotal;
+                        itemsMap.set(product.id, {
+                            productId: product.id,
+                            quantity,
+                            priceAtSale: product.price,
+                            subtotal
+                        });
+                    }
+                }
+
+                const isDebit = Math.random() > 0.7; // 30% pakai debit
+                const invoiceDateStr = txTime.getFullYear().toString() + (txTime.getMonth() + 1).toString().padStart(2, '0') + txTime.getDate().toString().padStart(2, '0');
+                const invoiceStr = `INV-${invoiceDateStr}-${(j+1).toString().padStart(3, '0')}`;
+
+                if (isDebit) totalDebit += totalPrice; else totalCash += totalPrice;
+
+                await prisma.transaction.create({
+                    data: {
+                        invoiceNumber: invoiceStr,
+                        shiftId: shift.id,
+                        totalPrice,
+                        paymentMethod: isDebit ? 'DEBIT' : 'CASH',
+                        amountPaid: isDebit ? null : totalPrice + 10000, // asumsikan kembalian
+                        change: isDebit ? null : 10000,
+                        debitCardNo: isDebit ? '**** **** **** 1234' : null,
+                        createdAt: txTime,
+                        items: {
+                            create: Array.from(itemsMap.values())
+                        }
+                    }
+                });
+            }
+
+            // Update shift dengan total penjualan aktual
+            await prisma.shift.update({
+                where: { id: shift.id },
+                data: {
+                    totalCashSales: totalCash,
+                    totalDebitSales: totalDebit,
+                    endingCash: 500000 + totalCash
+                }
+            });
+        }
+    }
+
+    console.log('Seeding berhasil! 20 produk dan riwayat transaksi 7 hari telah ditambahkan.');
 }
 
 main()

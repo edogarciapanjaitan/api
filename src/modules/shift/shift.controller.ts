@@ -90,4 +90,28 @@ export class ShiftController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/shifts/daily-report
+   * Get historical shift reports.
+   */
+  async getDailyShiftReport(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const daysStr = req.query.days as string;
+      const days = typeof daysStr === "string" ? parseInt(daysStr, 10) : 7;
+
+      const report = await shiftService.getDailyShiftReport(days);
+
+      res.status(200).json({
+        success: true,
+        data: report,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
