@@ -71,16 +71,22 @@ export function validateCreateTransaction(
   if (paymentMethod === "DEBIT") {
     if (
       !debitCardNo ||
-      typeof debitCardNo !== "string" ||
-      debitCardNo.trim().length < 4 ||
-      debitCardNo.trim().length > 20
+      typeof debitCardNo !== "string"
     ) {
       errors.push({
         field: "debitCardNo",
-        message: "Nomor kartu debit harus 4-20 karakter",
+        message: "Nomor kartu debit wajib diisi",
       });
     } else {
-      req.body.debitCardNo = debitCardNo.trim();
+      const digitsOnly = debitCardNo.replace(/\D/g, "");
+      if (digitsOnly.length !== 16) {
+        errors.push({
+          field: "debitCardNo",
+          message: "Nomor kartu debit harus tepat 16 digit",
+        });
+      } else {
+        req.body.debitCardNo = digitsOnly;
+      }
     }
   }
 
