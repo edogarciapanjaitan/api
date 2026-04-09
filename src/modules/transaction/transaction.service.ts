@@ -343,6 +343,56 @@ export class TransactionService {
   }
 
   /**
+   * Get the top 5 most sold products within a given date range.
+   */
+  async getTopProducts(startDate: Date, endDate: Date) {
+    const normalizedStart = new Date(startDate);
+    normalizedStart.setHours(0, 0, 0, 0);
+
+    const normalizedEnd = new Date(endDate);
+    normalizedEnd.setHours(23, 59, 59, 999);
+
+    // Group transaction items by productId
+    const topItems = await prisma.transactionItem.groupBy({
+      by: ["productId"],
+      where: {
+        transaction: {
+          createdAt: {
+            gte: normalizedStart,
+            lte: normalizedEnd,
+          },
+        },
+      },
+      _sum: {
+        quantity: true,
+      },
+      orderBy: {
+        _sum: {
+          quantity: "desc",
+        },
+      },
+      take: 5,
+    });
+
+    if (topItems.length === 0) return [];
+
+    // Fetch product details for the top items
+    const productIds = topItems.map((item) => item.productId);
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, name: true },
+    });
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    return topItems.map((item) => ({
+      productId: item.productId,
+      name: productMap.get(item.productId)?.name || "Unknown Product",
+      totalQuantity: item._sum.quantity || 0,
+    }));
+  }
+
+  /**
    * Generate invoice number: INV-YYYYMMDD-XXX
    * Counter resets per day.
    */

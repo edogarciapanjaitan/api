@@ -123,12 +123,17 @@ export class TransactionController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const daysStr = req.query.days as string;
-      const days = typeof daysStr === "string" ? parseInt(daysStr, 10) : 7;
+      const monthStr = req.query.month as string;
+      const yearStr = req.query.year as string;
       
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(endDate.getDate() - (days - 1));
+      const now = new Date();
+      const targetMonth = monthStr ? parseInt(monthStr, 10) - 1 : now.getMonth();
+      const targetYear = yearStr ? parseInt(yearStr, 10) : now.getFullYear();
+
+      // Start is the 1st of the target month
+      const startDate = new Date(targetYear, targetMonth, 1);
+      // End is the last day of the target month
+      const endDate = new Date(targetYear, targetMonth + 1, 0);
 
       const stats = await transactionService.getDashboardStats(
         startDate,
@@ -138,6 +143,40 @@ export class TransactionController {
       res.status(200).json({
         success: true,
         data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/transactions/top-products
+   * Get top 5 most sold products for a specific month and year.
+   */
+  async getTopProducts(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const monthStr = req.query.month as string;
+      const yearStr = req.query.year as string;
+      
+      const now = new Date();
+      const targetMonth = monthStr ? parseInt(monthStr, 10) - 1 : now.getMonth();
+      const targetYear = yearStr ? parseInt(yearStr, 10) : now.getFullYear();
+
+      const startDate = new Date(targetYear, targetMonth, 1);
+      const endDate = new Date(targetYear, targetMonth + 1, 0);
+
+      const topProducts = await transactionService.getTopProducts(
+        startDate,
+        endDate
+      );
+
+      res.status(200).json({
+        success: true,
+        data: topProducts,
       });
     } catch (error) {
       next(error);

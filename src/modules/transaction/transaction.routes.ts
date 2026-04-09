@@ -29,6 +29,13 @@ router.get(
   transactionController.getDashboardStats.bind(transactionController)
 );
 
+// GET /api/transactions/top-products — Admin dashboard top products
+router.get(
+  "/top-products",
+  authorize("ADMIN"),
+  transactionController.getTopProducts.bind(transactionController)
+);
+
 // GET /api/transactions/history?date=YYYY-MM-DD — List daily transaction history
 router.get(
   "/history",
