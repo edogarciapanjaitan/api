@@ -4,17 +4,19 @@ import { Request, Response, NextFunction } from "express";
 const createProductSchema = z.object({
   name: z.string().min(3, "Nama produk minimal 3 karakter").max(100),
   sku: z.string().min(3, "SKU minimal 3 karakter").max(50),
-  price: z.number().int().min(0, "Harga tidak boleh negatif"),
-  stock: z.number().int().min(0, "Stok tidak boleh negatif"),
+  price: z.coerce.number().int().min(0, "Harga tidak boleh negatif"),
+  stock: z.coerce.number().int().min(0, "Stok tidak boleh negatif"),
   category: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
 });
 
 const updateProductSchema = z.object({
   name: z.string().min(3, "Nama produk minimal 3 karakter").max(100).optional(),
   sku: z.string().min(3, "SKU minimal 3 karakter").max(50).optional(),
-  price: z.number().int().min(0, "Harga tidak boleh negatif").optional(),
-  stock: z.number().int().min(0, "Stok tidak boleh negatif").optional(),
+  price: z.coerce.number().int().min(0, "Harga tidak boleh negatif").optional(),
+  stock: z.coerce.number().int().min(0, "Stok tidak boleh negatif").optional(),
   category: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
 });
 
 const adjustStockSchema = z.object({

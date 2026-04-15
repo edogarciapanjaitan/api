@@ -36,6 +36,7 @@ model Product {
   price            Float
   stock            Int               @default(0)
   category         String?
+  imageUrl         String?           // Menambahkan URL atau path gambar lokal produk
   transactionItems TransactionItem[]
   isDeleted        Boolean           @default(false)
   createdAt        DateTime          @default(now())

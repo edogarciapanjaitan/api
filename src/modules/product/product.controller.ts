@@ -1,6 +1,7 @@
 import { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 import { ProductService } from "./product.service";
+import { uploadToCloudinary } from "../../config/cloudinary";
 
 const productService = new ProductService();
 
@@ -21,6 +22,37 @@ export class ProductController {
       res.status(200).json({
         success: true,
         data: products,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/products/catalog?page=1&limit=16&category=
+   * Get paginated products formatted for POS Catalog Grid.
+   */
+  async getCatalogPos(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 16;
+      const category = (req.query.category as string) || "";
+
+      const result = await productService.getCatalogPos(page, limit, category);
+
+      res.status(200).json({
+        success: true,
+        data: result.data,
+        meta: {
+          total: result.total,
+          pages: result.pages,
+          currentPage: page,
+          categories: result.categories,
+        }
       });
     } catch (error) {
       next(error);
@@ -66,11 +98,15 @@ export class ProductController {
    * Create a new product.
    */
   async createProduct(
-    req: AuthenticatedRequest,
+    req: AuthenticatedRequest | any,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
+      if (req.file) {
+        const uploadResult = await uploadToCloudinary(req.file.buffer, "cashier_products");
+        req.body.imageUrl = uploadResult.secure_url;
+      }
       const product = await productService.createProduct(req.body);
 
       res.status(201).json({
@@ -92,12 +128,16 @@ export class ProductController {
    * Update an existing product.
    */
   async updateProduct(
-    req: AuthenticatedRequest,
+    req: AuthenticatedRequest | any,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
       const id = req.params.id as string;
+      if (req.file) {
+        const uploadResult = await uploadToCloudinary(req.file.buffer, "cashier_products");
+        req.body.imageUrl = uploadResult.secure_url;
+      }
       const product = await productService.updateProduct(id, req.body);
 
       res.status(200).json({

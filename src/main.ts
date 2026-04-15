@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import path from "path";
 import { config } from "./config/config";
 import { errorHandler } from "./middleware/error.middleware";
 import authRoutes from "./modules/auth/auth.routes";
@@ -13,6 +14,9 @@ import userRoutes from "./modules/user/user.routes";
 // --- Create Express app ---
 
 const app = express();
+
+// Serve static uploads
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // --- Security Middleware ---
 

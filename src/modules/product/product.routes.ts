@@ -12,6 +12,13 @@ router.use(authenticate);
 // SHARED ROUTES (CASHIER & ADMIN)
 // ==========================================
 
+// GET /api/products/catalog?page=1&limit=16&category= — Paginated catalog
+router.get(
+  "/catalog",
+  authorize("CASHIER", "ADMIN"),
+  productController.getCatalogPos.bind(productController)
+);
+
 // GET /api/products/search?q=xxx — Search products
 router.get(
   "/search",
@@ -24,6 +31,7 @@ router.get(
 // ==========================================
 
 import { validateCreateProduct, validateUpdateProduct, validateAdjustStock } from "./product.validator";
+import { uploadSingle } from "../../middleware/file-upload.middleware";
 
 router.get(
   "/",
@@ -34,6 +42,7 @@ router.get(
 router.post(
   "/",
   authorize("ADMIN"),
+  uploadSingle("image"),
   validateCreateProduct,
   productController.createProduct.bind(productController)
 );
@@ -41,6 +50,7 @@ router.post(
 router.put(
   "/:id",
   authorize("ADMIN"),
+  uploadSingle("image"),
   validateUpdateProduct,
   productController.updateProduct.bind(productController)
 );

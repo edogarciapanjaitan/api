@@ -9,6 +9,7 @@ interface ProductData {
   price: number;
   stock: number;
   category: string | null;
+  imageUrl?: string | null;
 }
 
 // --- Service ---
@@ -43,6 +44,7 @@ export class ProductService {
         price: true,
         stock: true,
         category: true,
+        imageUrl: true,
       },
       take: 10,
       orderBy: { name: "asc" },
@@ -64,10 +66,69 @@ export class ProductService {
         price: true,
         stock: true,
         category: true,
+        imageUrl: true,
       },
     });
 
     return product;
+  }
+
+  // ==========================================
+  // POS CATALOG METHODS
+  // ==========================================
+
+  /**
+   * Get products for POS Catalog (Grid visualization)
+   */
+  async getCatalogPos(
+    page: number = 1,
+    limit: number = 16,
+    category: string = ""
+  ): Promise<{ data: ProductData[]; total: number; pages: number; categories: string[] }> {
+    const skip = (page - 1) * limit;
+    
+    // Base where clause: stock > 0, not deleted
+    const whereClause: any = { isDeleted: false, stock: { gt: 0 } };
+    
+    if (category && category !== "Semua") {
+      whereClause.category = category;
+    }
+
+    // Get unique categories for the filter bar
+    const rawCategories = await prisma.product.findMany({
+      where: { isDeleted: false, stock: { gt: 0 } },
+      select: { category: true },
+      distinct: ['category'],
+    });
+    const categories = rawCategories
+      .map(c => c.category)
+      .filter((c): c is string => c !== null && c.trim().length > 0);
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          name: true,
+          sku: true,
+          price: true,
+          stock: true,
+          category: true,
+          imageUrl: true,
+        },
+        orderBy: { name: "asc" },
+        skip,
+        take: limit,
+      }),
+      prisma.product.count({ where: whereClause }),
+    ]);
+
+    return {
+      data: products,
+      total,
+      pages: Math.ceil(total / limit),
+      categories: ["Semua", ...categories],
+    };
   }
 
   // ==========================================
@@ -105,6 +166,7 @@ export class ProductService {
           price: true,
           stock: true,
           category: true,
+          imageUrl: true,
         },
         orderBy: { updatedAt: "desc" },
         skip,
@@ -141,8 +203,9 @@ export class ProductService {
         price: data.price,
         stock: data.stock,
         category: data.category,
+        imageUrl: data.imageUrl,
       },
-      select: { id: true, name: true, sku: true, price: true, stock: true, category: true },
+      select: { id: true, name: true, sku: true, price: true, stock: true, category: true, imageUrl: true },
     });
   }
 
@@ -175,8 +238,9 @@ export class ProductService {
         price: data.price,
         stock: data.stock,
         category: data.category,
+        imageUrl: data.imageUrl !== undefined ? data.imageUrl : undefined,
       },
-      select: { id: true, name: true, sku: true, price: true, stock: true, category: true },
+      select: { id: true, name: true, sku: true, price: true, stock: true, category: true, imageUrl: true },
     });
   }
 
@@ -197,7 +261,7 @@ export class ProductService {
     return prisma.product.update({
       where: { id },
       data: { stock: newStock },
-      select: { id: true, name: true, sku: true, price: true, stock: true, category: true }
+      select: { id: true, name: true, sku: true, price: true, stock: true, category: true, imageUrl: true }
     });
   }
 

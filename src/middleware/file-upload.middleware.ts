@@ -50,32 +50,9 @@ export const ALLOWED_MIME_TYPES = [
 /** Ukuran file maksimum: 2 MB (dalam bytes) */
 export const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
-// ==========================================================
-// PANDUAN IMPLEMENTASI MIDDLEWARE MULTER DI MASA MENDATANG
-// ==========================================================
-// Jika nanti butuh upload file, jalankan: npm install multer @types/multer
-// Lalu uncomment kode d bawah ini:
-/*
+import multer from "multer";
 
-import multer, { FileFilterCallback } from "multer";
-
-const UPLOAD_DIR = path.join(__dirname, "../../uploads");
-
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req: any, file: any, cb: any) => {
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (req: any, file: any, cb: any) => {
-    const uniqueSuffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-    const ext = path.extname(file.originalname).toLowerCase();
-    const baseName = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9]/g, "_").slice(0, 50);
-    cb(null, `${uniqueSuffix}-${baseName}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (req: any, file: any, cb: any): void => {
   const ext = path.extname(file.originalname).toLowerCase();
@@ -111,6 +88,4 @@ function handleMulterError(err: any, res: any): void {
   // custom error logic
   res.status(400).json({ success: false, message: err.message || "Gagal mengupload file." });
 }
-
-*/
 
