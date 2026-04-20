@@ -8,10 +8,6 @@ const productController = new ProductController();
 // All product routes require authentication
 router.use(authenticate);
 
-// ==========================================
-// SHARED ROUTES (CASHIER & ADMIN)
-// ==========================================
-
 // GET /api/products/catalog?page=1&limit=16&category= — Paginated catalog
 router.get(
   "/catalog",
@@ -26,9 +22,7 @@ router.get(
   productController.searchProducts.bind(productController)
 );
 
-// ==========================================
-// ADMIN ONLY ROUTES
-// ==========================================
+
 
 import { validateCreateProduct, validateUpdateProduct, validateAdjustStock } from "./product.validator";
 import { uploadSingle } from "../../middleware/file-upload.middleware";
