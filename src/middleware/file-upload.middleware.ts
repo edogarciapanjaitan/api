@@ -1,26 +1,8 @@
-/**
- * File Upload Validation Middleware
- * 
- * Utility siap pakai untuk memvalidasi file upload (gambar/dokumen).
- * Gunakan middleware ini di route yang memerlukan upload file.
- * 
- * Contoh penggunaan di route:
- * 
- *   import { uploadSingle, uploadMultiple } from "../../middleware/file-upload.middleware";
- * 
- *   // Upload gambar produk (1 file)
- *   router.post("/products", authenticate, uploadSingle("image"), controller.create);
- * 
- *   // Upload banyak file (maks 5)
- *   router.post("/documents", authenticate, uploadMultiple("files", 5), controller.upload);
- */
 
 import path from "path";
 import fs from "fs";
 
-// ============================
 // KONFIGURASI VALIDASI
-// ============================
 
 /** Ekstensi file gambar yang diizinkan */
 export const ALLOWED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
@@ -55,6 +37,13 @@ import multer from "multer";
 const storage = multer.memoryStorage();
 
 const fileFilter = (req: any, file: any, cb: any): void => {
+  // If the user submits the form without selecting a file, an empty file part is sent.
+  // We can safely ignore it by passing `false` to the callback.
+  if (!file.originalname || file.originalname.trim() === "") {
+    cb(null, false);
+    return;
+  }
+
   const ext = path.extname(file.originalname).toLowerCase();
   const mimeType = file.mimetype;
 
