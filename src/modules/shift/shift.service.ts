@@ -156,6 +156,12 @@ export class ShiftService {
         user: {
           select: { name: true, username: true }
         },
+        transactions: {
+          select: {
+            paymentMethod: true,
+            totalPrice: true
+          }
+        },
         _count: {
           select: { transactions: true }
         }
@@ -163,17 +169,27 @@ export class ShiftService {
       orderBy: { startTime: 'desc' }
     });
 
-    return shifts.map((shift: any) => ({
-      id: shift.id,
-      cashierName: shift.user.name,
-      startTime: shift.startTime,
-      endTime: shift.endTime,
-      startingCash: shift.startingCash,
-      endingCash: shift.endingCash,
-      totalCashSales: shift.totalCashSales,
-      totalDebitSales: shift.totalDebitSales,
-      totalTransactions: shift._count.transactions
-    }));
+    return shifts.map((shift: any) => {
+      const calcCash = shift.transactions
+        .filter((t: any) => t.paymentMethod === 'CASH')
+        .reduce((sum: number, t: any) => sum + t.totalPrice, 0);
+      
+      const calcDebit = shift.transactions
+        .filter((t: any) => t.paymentMethod === 'DEBIT')
+        .reduce((sum: number, t: any) => sum + t.totalPrice, 0);
+
+      return {
+        id: shift.id,
+        cashierName: shift.user.name,
+        startTime: shift.startTime,
+        endTime: shift.endTime,
+        startingCash: shift.startingCash,
+        endingCash: shift.endingCash,
+        totalCashSales: calcCash,
+        totalDebitSales: calcDebit,
+        totalTransactions: shift._count.transactions
+      };
+    });
   }
 }
 

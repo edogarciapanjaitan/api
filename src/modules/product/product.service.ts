@@ -73,9 +73,9 @@ export class ProductService {
     return product;
   }
 
-  // ==========================================
+  
   // POS CATALOG METHODS
-  // ==========================================
+  
 
   /**
    * Get products for POS Catalog (Grid visualization)
@@ -131,9 +131,9 @@ export class ProductService {
     };
   }
 
-  // ==========================================
-  // ADMIN DASHBOARD METHODS
-  // ==========================================
+  
+  // ADMIN DASHBOARD
+  
 
   /**
    * Get products with pagination and search for admin dashboard.
