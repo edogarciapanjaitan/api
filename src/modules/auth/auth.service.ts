@@ -1,9 +1,7 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { type SignOptions } from "jsonwebtoken";
 import { prisma } from "../../lib/prisma";
 import { config } from "../../config/config";
-
-// --- Types ---
 
 interface LoginResult {
   token: string;
@@ -15,14 +13,9 @@ interface LoginResult {
   };
 }
 
-// --- Service ---
 
 export class AuthService {
-  /**
-   * Authenticate user by username and password.
-   * Returns JWT token and user data on success.
-   * Throws an error on failure (wrong credentials, user not found).
-   */
+
   async login(username: string, password: string): Promise<LoginResult> {
     // 1. Find user — select only needed fields (efficient query)
     const user = await prisma.user.findUnique({
@@ -51,7 +44,7 @@ export class AuthService {
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       config.jwt.secret,
-      { expiresIn: config.jwt.expiresIn as string | number }
+      { expiresIn: config.jwt.expiresIn } as SignOptions
     );
 
     // 4. Return token + safe user data (no password)

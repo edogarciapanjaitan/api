@@ -59,9 +59,7 @@ export class ProductController {
     }
   }
 
-  // ==========================================
   // ADMIN DASHBOARD HANDLERS
-  // ==========================================
 
   /**
    * GET /api/products
@@ -116,8 +114,8 @@ export class ProductController {
       });
     } catch (error: any) {
       if (error.message.includes("sudah ada")) {
-         res.status(409).json({ success: false, message: error.message });
-         return;
+        res.status(409).json({ success: false, message: error.message });
+        return;
       }
       next(error);
     }
@@ -147,12 +145,12 @@ export class ProductController {
       });
     } catch (error: any) {
       if (error.message.includes("tidak ditemukan")) {
-         res.status(404).json({ success: false, message: error.message });
-         return;
+        res.status(404).json({ success: false, message: error.message });
+        return;
       }
       if (error.message.includes("sudah ada")) {
-         res.status(409).json({ success: false, message: error.message });
-         return;
+        res.status(409).json({ success: false, message: error.message });
+        return;
       }
       next(error);
     }
@@ -179,12 +177,12 @@ export class ProductController {
       });
     } catch (error: any) {
       if (error.message.includes("tidak ditemukan")) {
-         res.status(404).json({ success: false, message: error.message });
-         return;
+        res.status(404).json({ success: false, message: error.message });
+        return;
       }
       if (error.message.includes("Operasi gagal")) {
-         res.status(400).json({ success: false, message: error.message });
-         return;
+        res.status(400).json({ success: false, message: error.message });
+        return;
       }
       next(error);
     }
@@ -209,8 +207,8 @@ export class ProductController {
       });
     } catch (error: any) {
       if (error.message.includes("di riwayat transaksi")) {
-         res.status(400).json({ success: false, message: error.message });
-         return;
+        res.status(400).json({ success: false, message: error.message });
+        return;
       }
       next(error);
     }
